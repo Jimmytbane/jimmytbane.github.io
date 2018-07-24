@@ -1,3 +1,3 @@
-# jmfgdev.github.io
+# JimmyByte.github.io
 
-My tiny site
+My site
