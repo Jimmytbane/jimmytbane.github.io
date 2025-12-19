@@ -2,24 +2,93 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-    <title>jimmytbane.github.io</title>
+    <title>euxaristia.github.io</title>
     <!-- CSS -->
     <!--Import Google Icon Font-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <!--Let browser know website is optimized for mobile-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>    
+    <style>
+        body {
+            background-color: #000000 !important;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            position: relative;
+        }
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        main, footer {
+            position: relative;
+            z-index: 1;
+        }
+        main {
+            flex: 1 0 auto;
+        }
+        .icon-block h5,
+        .icon-block p,
+        .icon-block .light {
+            color: #ffffff !important;
+        }
+        main .container,
+        main .section {
+            color: #ffffff;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff !important;
+        }
+        h1.orange-text {
+            color: #00ff64 !important;
+        }
+        .light-blue-text {
+            color: #00ff64 !important;
+        }
+        .icon-block {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .col.s12.m4 {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        footer.page-footer {
+            background: linear-gradient(to top, rgba(0, 26, 0, 0.85) 0%, rgba(0, 26, 0, 0.5) 40%, rgba(0, 26, 0, 0.15) 80%, rgba(0, 26, 0, 0.05) 100%) !important;
+            box-shadow: none !important;
+            margin-top: 0;
+            padding-bottom: 0;
+            border: none !important;
+            outline: none !important;
+        }
+        footer.page-footer .container {
+            background: transparent;
+        }
+        footer.page-footer * {
+            border: none !important;
+            outline: none !important;
+        }
+        footer.page-footer a {
+            color: #00ff64 !important;
+        }
+    </style>
 </head>
 <body>
-<!-- Copyright (C) Jimmytbane 2017-2020 -->
-<nav class="light-blue lighten-1" role="navigation">
-        <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Jimmytbane</a></div>
-      </nav>
+<!-- Copyright (C) euxaristia 2017-2020 -->
+<canvas id="matrix-canvas"></canvas>
+<main>
       <div class="section no-pad-bot" id="index-banner">
         <div class="container">
           <br><br>
-          <h1 class="header center orange-text">Programmer</h1>
+          <h1 class="header center orange-text">Tech Enthusiast</h1>
           <br><br>
     
         </div>
@@ -62,26 +131,98 @@
         </div>
         <br><br>
       </div>
+      </main>
     
-      <footer class="page-footer orange">
+      <footer class="page-footer">
         <div class="container">
           <div class="row">
             <div class="col l6 s12">
-              <h5 class="white-text">Jimmytbane</h5>
-              <p class="grey-text text-lighten-4">Programmer/Software Engineer</p>
+              <h5 class="white-text">euxaristia</h5>
+              <p class="grey-text text-lighten-4">Tech Enthusiast/Software Engineer</p>
             </div>
-          </div>
-        </div>
-        <div class="footer-copyright">
-          <div class="container">
-          Made w/ <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
           </div>
         </div>
       </footer>
 <!-- Compiled and minified JavaScript -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="materialize.js"></script>
-    <script src="init.js"></script>    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        // Matrix Rain Effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('matrix-canvas');
+            if (!canvas) {
+                console.error('Matrix canvas not found');
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('Could not get canvas context');
+                return;
+            }
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                // Recalculate columns after resize
+                columns = Math.floor(canvas.width / fontSize);
+                // Reset drops array
+                drops = [];
+                for (let x = 0; x < columns; x++) {
+                    drops[x] = Math.random() * -100;
+                }
+            }
+            
+            // Matrix characters
+            const matrix = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const chars = matrix.split('');
+            
+            const fontSize = 14;
+            let columns = Math.floor(canvas.width / fontSize);
+            let drops = [];
+            
+            // Initialize canvas
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Initialize drops
+            for (let x = 0; x < columns; x++) {
+                drops[x] = Math.random() * -100;
+            }
+            
+            function draw() {
+                // Fade effect - lighter fade for more visibility
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Set font with bold effect
+                ctx.font = 'bold ' + fontSize + 'px monospace';
+                
+                // Draw characters
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+                    
+                    // Brighter green at top, still visible as it goes down
+                    const opacity = Math.max(0.3, 1 - (y / canvas.height) * 0.4);
+                    // Bright green color - more vibrant
+                    ctx.fillStyle = `rgba(0, 255, 100, ${opacity})`;
+                    ctx.fillText(text, x, y);
+                    
+                    // Reset drop when it reaches bottom
+                    if (y > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            // Start animation loop
+            setInterval(draw, 35);
+        });
+    </script>
 </body>
 </html>
