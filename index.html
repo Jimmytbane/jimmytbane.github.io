@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
     <title>euxaristia.github.io</title>
+    <link rel="icon" type="image/png" href="https://github.com/euxaristia.png">
     <!-- CSS -->
     <!--Import Google Icon Font-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -25,7 +26,7 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            opacity: 0.5;
+            opacity: 0.25;
             pointer-events: none;
         }
         main, footer {
@@ -93,7 +94,28 @@
             }
         }
         .light-blue-text {
-            color: #00ff64 !important;
+            background: 
+                conic-gradient(
+                    from 180deg at 50% 50%,
+                    #ff006e,
+                    #ff5e00,
+                    #ffbe0b,
+                    #06ffa5,
+                    #3a86ff,
+                    #8338ec,
+                    #ff006e
+                );
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: plasma-flow 15s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            filter: brightness(1.4) contrast(1.2);
+            display: block;
+            text-align: center;
+        }
+        .light-blue-text i {
+            display: inline-block;
         }
         .icon-block {
             padding: 20px;
