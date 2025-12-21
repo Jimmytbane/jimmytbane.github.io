@@ -29,7 +29,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             z-index: 0;
             opacity: 0.25;
             pointer-events: none;
@@ -301,20 +301,36 @@
             const chars = matrix.split('');
             
             const fontSize = 14;
+            
+            // Lock canvas to viewport dimensions - use initial height to avoid address bar issues
+            function getInitialViewportHeight() {
+                // Use the larger of clientHeight or initial innerHeight to account for address bar
+                return Math.max(document.documentElement.clientHeight, window.innerHeight);
+            }
+            
             let columns = Math.floor(window.innerWidth / fontSize);
             let drops = [];
+            let lockedHeight = getInitialViewportHeight();
+            let lockedWidth = window.innerWidth;
             
-            // Set canvas size (without resetting drops)
+            // Set canvas size (without resetting drops) - only on significant changes
             function resizeCanvas() {
                 const newWidth = window.innerWidth;
-                const newHeight = window.innerHeight;
+                const newHeight = getInitialViewportHeight();
                 const newColumns = Math.floor(newWidth / fontSize);
                 
-                // Only resize if dimensions actually changed significantly (not just address bar)
-                if (Math.abs(canvas.width - newWidth) > 50 || Math.abs(canvas.height - newHeight) > 50) {
+                // Only resize if width changed significantly or orientation changed
+                // Ignore small height changes from address bar
+                const widthDiff = Math.abs(lockedWidth - newWidth);
+                const heightDiff = Math.abs(lockedHeight - newHeight);
+                
+                // Resize only on width change > 50px or height change > 200px (orientation)
+                if (widthDiff > 50 || heightDiff > 200) {
                     const oldColumns = columns;
-                    canvas.width = newWidth;
-                    canvas.height = newHeight;
+                    lockedWidth = newWidth;
+                    lockedHeight = newHeight;
+                    canvas.width = lockedWidth;
+                    canvas.height = lockedHeight;
                     columns = newColumns;
                     
                     // Adjust drops array if column count changed
@@ -333,21 +349,31 @@
                 }
             }
             
-            // Initialize canvas
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            // Initialize canvas with locked dimensions
+            canvas.width = lockedWidth;
+            canvas.height = lockedHeight;
             
             // Initialize drops
             for (let x = 0; x < columns; x++) {
                 drops[x] = Math.random() * -100;
             }
             
-            // Debounced resize handler
+            // Debounced resize handler - use visualViewport for iOS Safari
             let resizeTimeout;
-            window.addEventListener('resize', function() {
+            function handleResize() {
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(resizeCanvas, 250);
-            });
+            }
+            
+            // Use visualViewport for iOS to avoid address bar resize issues
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', handleResize);
+                window.visualViewport.addEventListener('scroll', function() {
+                    // Ignore scroll events that just hide/show address bar
+                }, { passive: true });
+            } else {
+                window.addEventListener('resize', handleResize);
+            }
             
             let animationId;
             let lastTime = 0;
