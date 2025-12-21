@@ -296,37 +296,70 @@
                 return;
             }
             
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                // Recalculate columns after resize
-                columns = Math.floor(canvas.width / fontSize);
-                // Reset drops array
-                drops = [];
-                for (let x = 0; x < columns; x++) {
-                    drops[x] = Math.random() * -100;
-                }
-            }
-            
             // Matrix characters
             const matrix = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const chars = matrix.split('');
             
             const fontSize = 14;
-            let columns = Math.floor(canvas.width / fontSize);
+            let columns = Math.floor(window.innerWidth / fontSize);
             let drops = [];
             
+            // Set canvas size (without resetting drops)
+            function resizeCanvas() {
+                const newWidth = window.innerWidth;
+                const newHeight = window.innerHeight;
+                const newColumns = Math.floor(newWidth / fontSize);
+                
+                // Only resize if dimensions actually changed significantly (not just address bar)
+                if (Math.abs(canvas.width - newWidth) > 50 || Math.abs(canvas.height - newHeight) > 50) {
+                    const oldColumns = columns;
+                    canvas.width = newWidth;
+                    canvas.height = newHeight;
+                    columns = newColumns;
+                    
+                    // Adjust drops array if column count changed
+                    if (newColumns !== oldColumns) {
+                        const newDrops = [];
+                        for (let x = 0; x < newColumns; x++) {
+                            // Preserve existing drop positions where possible
+                            if (x < oldColumns) {
+                                newDrops[x] = drops[x];
+                            } else {
+                                newDrops[x] = Math.random() * -100;
+                            }
+                        }
+                        drops = newDrops;
+                    }
+                }
+            }
+            
             // Initialize canvas
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
             
             // Initialize drops
             for (let x = 0; x < columns; x++) {
                 drops[x] = Math.random() * -100;
             }
             
-            function draw() {
+            // Debounced resize handler
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(resizeCanvas, 250);
+            });
+            
+            let animationId;
+            let lastTime = 0;
+            
+            function draw(currentTime) {
+                // Throttle to ~30fps for consistency
+                if (currentTime - lastTime < 33) {
+                    animationId = requestAnimationFrame(draw);
+                    return;
+                }
+                lastTime = currentTime;
+                
                 // Fade effect - lighter fade for more visibility
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -353,10 +386,12 @@
                     
                     drops[i]++;
                 }
+                
+                animationId = requestAnimationFrame(draw);
             }
             
-            // Start animation loop
-            setInterval(draw, 35);
+            // Start animation loop with requestAnimationFrame
+            animationId = requestAnimationFrame(draw);
         });
     </script>
 </body>
