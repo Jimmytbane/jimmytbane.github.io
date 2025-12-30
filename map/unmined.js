@@ -222,32 +222,20 @@ class Unmined {
             this.dataProjection,
             this.viewProjection);
 
-        const digitalZoomLevels = [1, 1.5];
-        const nativeZoomLevels = this.#options.maxZoom - this.#options.minZoom;
+        const mapZoomLevels = this.#options.maxZoom - this.#options.minZoom;
+        const resolutions = new Array(mapZoomLevels + 1);
+        for (let z = 0; z <= mapZoomLevels; ++z) {
 
-        const sourceResolutions = new Array(nativeZoomLevels + 1);
-        for (let z = 0; z <= nativeZoomLevels; ++z) {
-            let b = 1 * Math.pow(2, nativeZoomLevels - z - this.#options.maxZoom);
+            let b = 1 * Math.pow(2, mapZoomLevels - z - this.#options.maxZoom);
             b = ol.proj.transform([b, b], this.dataProjection, this.viewProjection)[0];
-            sourceResolutions[z] = b * dpiScale;
+            resolutions[z] = b * dpiScale;
         }
 
-        const viewResolutions = new Array(nativeZoomLevels + digitalZoomLevels.length + 1);
-        // native
-        for (let z = 0; z <= nativeZoomLevels; ++z) {
-            viewResolutions[z] = sourceResolutions[z];
-        }
-        // digital
-        for (let i = 0; i < digitalZoomLevels.length; i++) {
-            let b = 1 * Math.pow(2, -digitalZoomLevels[i] - this.#options.maxZoom);
-            b = ol.proj.transform([b, b], this.dataProjection, this.viewProjection)[0];
-            viewResolutions[nativeZoomLevels + 1 + i] = b * dpiScale;
-        }
 
         var tileGrid = new ol.tilegrid.TileGrid({
             extent: mapExtent,
             origin: [0, 0],
-            resolutions: sourceResolutions,
+            resolutions: resolutions,
             tileSize: worldTileSize / dpiScale
         });
 
@@ -260,11 +248,10 @@ class Unmined {
                     tileSize: worldTileSize / dpiScale,
 
                     tileUrlFunction: (coordinate) => {
-                        const z = coordinate[0];
                         const tileX = coordinate[1];
                         const tileY = coordinate[2];
 
-                        const worldZoom = -(nativeZoomLevels - z) + this.#options.maxZoom;
+                        const worldZoom = -(mapZoomLevels - coordinate[0]) + this.#options.maxZoom;
 
                         if (this.regionMap.hasTile(tileX, tileY, worldZoom)) {
                             const url = ('tiles/zoom.{z}/{xd}/{yd}/tile.{x}.{y}.' + this.#options.imageFormat)
@@ -298,9 +285,9 @@ class Unmined {
                 center: ol.proj.transform([this.#options.centerX, this.#options.centerZ], this.dataProjection, this.viewProjection),
                 extent: mapExtent,
                 projection: this.viewProjection,
-                resolutions: viewResolutions,
-                maxZoom: nativeZoomLevels + digitalZoomLevels.length,
-                zoom: nativeZoomLevels - this.#options.maxZoom,
+                resolutions: tileGrid.getResolutions(),
+                maxZoom: mapZoomLevels,
+                zoom: mapZoomLevels - this.#options.maxZoom,
                 constrainResolution: true,
                 showFullExtent: true,
                 constrainOnlyCenter: true,
