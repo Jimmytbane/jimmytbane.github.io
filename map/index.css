@@ -57,6 +57,11 @@ div.ol-mouse-position {
     background: #ddd;
 }
 
+.ol-scale-line {
+    left: 10px;
+    bottom: 10px;
+}
+
 .ol-scale-singlebar-even {
     background: #444;
 }

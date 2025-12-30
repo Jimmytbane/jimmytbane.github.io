@@ -94,7 +94,7 @@ class RedDotMarker {
         const rx = q.get('rx');
         const rz = q.get('rz');
         if (!rx || !rz) return undefined;
-       
+
         const c = [parseInt(rx), parseInt(rz)];
         return c;
     }
@@ -113,7 +113,7 @@ class RedDotMarker {
         return '#' + s;
     }
 
-    setCoordinates(coordinates) {        
+    setCoordinates(coordinates) {
         const url = new URL(window.location.href);
         url.hash = RedDotMarker.getUrlHashWithCoordinates(url.hash, coordinates);
         window.location.replace(url);
@@ -182,7 +182,7 @@ class Unmined {
         enableGrid: true,
         showGrid: true,
         binaryGrid: true,
-        showScaleBar: true,
+        showScaleBar: false,
         denseGrid: false,
         showMarkers: true,
         showPlayers: true,
@@ -222,11 +222,13 @@ class Unmined {
             this.dataProjection,
             this.viewProjection);
 
-        const mapZoomLevels = this.#options.maxZoom - this.#options.minZoom;
+        const digitalZoomLevels = 2;
+        const nativeZoomLevels = this.#options.maxZoom - this.#options.minZoom;
+        const mapZoomLevels = nativeZoomLevels + digitalZoomLevels;
+
         const resolutions = new Array(mapZoomLevels + 1);
         for (let z = 0; z <= mapZoomLevels; ++z) {
-
-            let b = 1 * Math.pow(2, mapZoomLevels - z - this.#options.maxZoom);
+            let b = 1 * Math.pow(2, nativeZoomLevels - z - this.#options.maxZoom);
             b = ol.proj.transform([b, b], this.dataProjection, this.viewProjection)[0];
             resolutions[z] = b * dpiScale;
         }
@@ -248,10 +250,18 @@ class Unmined {
                     tileSize: worldTileSize / dpiScale,
 
                     tileUrlFunction: (coordinate) => {
-                        const tileX = coordinate[1];
-                        const tileY = coordinate[2];
+                        let z = coordinate[0];
+                        let tileX = coordinate[1];
+                        let tileY = coordinate[2];
 
-                        const worldZoom = -(mapZoomLevels - coordinate[0]) + this.#options.maxZoom;
+                        let worldZoom = -(nativeZoomLevels - z) + this.#options.maxZoom;
+
+                        if (worldZoom > this.#options.maxZoom) {
+                            const zoomDiff = Math.pow(2, worldZoom - this.#options.maxZoom);
+                            tileX = Math.floor(tileX / zoomDiff);
+                            tileY = Math.floor(tileY / zoomDiff);
+                            worldZoom = this.#options.maxZoom;
+                        }
 
                         if (this.regionMap.hasTile(tileX, tileY, worldZoom)) {
                             const url = ('tiles/zoom.{z}/{xd}/{yd}/tile.{x}.{y}.' + this.#options.imageFormat)
@@ -337,10 +347,10 @@ class Unmined {
         view.setCenter(v);
     }
 
-    centerOnRedDotMarker() {                
+    centerOnRedDotMarker() {
         const c = this.redDotMarker.getCoordinates();
         if (!c) return;
-        
+
         this.center(c);
     }
 
@@ -705,7 +715,7 @@ class Unmined {
     loadSettings() {
         const mapSettings = (() => {
             try {
-                const s = localStorage.getItem("mapSettings");
+                const s = localStorage.getItem("unminedSettings");
                 if (!s) return undefined;
                 return JSON.parse(s);
             } catch {
@@ -732,7 +742,7 @@ class Unmined {
             showMarkers: this.#options.showMarkers,
             showPlayers: this.#options.showPlayers,
         }
-        localStorage.setItem("mapSettings", JSON.stringify(mapSettings))
+        localStorage.setItem("unminedSettings", JSON.stringify(mapSettings))
     }
 
     updateMarkersLayer() {
