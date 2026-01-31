@@ -1,3 +1,3 @@
-# JimmyByte.github.io
+# euxaristia.github.io
 
 My site
