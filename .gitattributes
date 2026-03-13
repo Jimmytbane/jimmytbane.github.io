@@ -1,0 +1,3 @@
+map/*.js linguist-vendored
+map/lib/*.js linguist-vendored
+matrix.js linguist-vendored
