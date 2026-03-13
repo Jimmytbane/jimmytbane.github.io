@@ -1,4 +1,4 @@
 .vs
 Cargo*
-/src/
 /target/
+node_modules/

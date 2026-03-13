@@ -1,4 +1,3 @@
-"use strict";
 /*
 
 Edit this file to add custom markers to the map.
@@ -21,9 +20,13 @@ Marker properties:
     font          - text font (CSS format)
 
 */
-var UnminedCustomMarkers = {
+
+var UnminedCustomMarkers: CustomMarkers = {
+
     isEnabled: false,
+
     markers: [
+
         // Example 1: Simple pin marker
         {
             x: -200,
@@ -32,6 +35,7 @@ var UnminedCustomMarkers = {
             imageAnchor: [0.5, 1],
             imageScale: 0.5
         },
+
         // Example 2: Pin with label
         {
             x: 0,
@@ -45,6 +49,7 @@ var UnminedCustomMarkers = {
             offsetY: 20,
             font: "bold 20px Calibri,sans serif"
         },
+
         // Example 3: Text only
         {
             x: 200,
@@ -55,6 +60,8 @@ var UnminedCustomMarkers = {
             offsetY: 0,
             font: "bold 50px Calibri,sans serif"
         }
+
         // Add your markers above this line
+
     ]
 };

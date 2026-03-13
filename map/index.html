@@ -25,14 +25,12 @@
     <script type="text/javascript" src="unmined.map.regions.js"></script>
     <script type="text/javascript" src="unmined.map.players.js"></script>
 
-    <!-- Custom markers -->
+    <!-- Custom markers (compiled from src/map/custom.markers.ts) -->
     <script type="text/javascript" src="custom.markers.js"></script>
 
-    <!-- uNmINeD JS and CSS -->
+    <!-- uNmINeD map engine and init (compiled from src/map/) -->
     <script type="text/javascript" src="unmined.js"></script>
     <link rel="stylesheet" type="text/css" href="index.css">
-
-    </style>
 
 </head>
 
@@ -45,27 +43,7 @@
         </svg>
     </button>
 
-    <script type="text/javascript">
-
-        document.title = UnminedMapProperties.worldName + " - " + document.title;
-
-        if (UnminedCustomMarkers && UnminedCustomMarkers.isEnabled && UnminedCustomMarkers.markers) {
-            UnminedMapProperties.markers = UnminedMapProperties.markers.concat(UnminedCustomMarkers.markers);
-        }
-
-        if (UnminedPlayers && UnminedPlayers.length > 0) {
-            UnminedMapProperties.playerMarkers = Unmined.createPlayerMarkers(UnminedPlayers);
-        }
-
-        const mapElement = document.getElementById('map');
-        const unmined = new Unmined(mapElement, UnminedMapProperties, UnminedRegions);
-
-        document.getElementById('grid-toggle').addEventListener('click', () => {
-            unmined.toggleGrid();
-        });
-
-
-    </script>
+    <script type="text/javascript" src="main.js"></script>
 </body>
 
 </html>
