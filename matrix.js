@@ -64,10 +64,12 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('resize', handleResize);
     }
     let lastTime = 0;
+    let frameHandle = null;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     function draw(currentTime) {
         // Throttle to ~30fps
         if (currentTime - lastTime < 33) {
-            requestAnimationFrame(draw);
+            frameHandle = requestAnimationFrame(draw);
             return;
         }
         lastTime = currentTime;
@@ -86,7 +88,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             drops[i]++;
         }
-        requestAnimationFrame(draw);
+        frameHandle = requestAnimationFrame(draw);
     }
-    requestAnimationFrame(draw);
+    function startDrawing() {
+        if (frameHandle !== null || reducedMotion.matches) {
+            return;
+        }
+        frameHandle = requestAnimationFrame(draw);
+    }
+    function stopDrawing() {
+        if (frameHandle === null) {
+            return;
+        }
+        cancelAnimationFrame(frameHandle);
+        frameHandle = null;
+    }
+    reducedMotion.addEventListener('change', function () {
+        if (reducedMotion.matches) {
+            stopDrawing();
+            return;
+        }
+        startDrawing();
+    });
+    startDrawing();
 });
