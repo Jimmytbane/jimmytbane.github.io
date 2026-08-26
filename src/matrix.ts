@@ -21,6 +21,24 @@ document.addEventListener('DOMContentLoaded', function () {
         return Math.max(document.documentElement.clientHeight, window.innerHeight);
     }
 
+    // Cap at 2x: a 3x phone would triple the fill cost every frame for no
+    // visible gain on glyphs this small.
+    function pixelRatio(): number {
+        return Math.min(window.devicePixelRatio || 1, 2);
+    }
+
+    // The backing store must be sized in device pixels or the canvas renders at
+    // 1x and is upscaled by the DPR, which is what made the matrix look soft on
+    // phones. Setting width/height resets the transform, so re-apply the scale.
+    function applyCanvasSize(cssWidth: number, cssHeight: number): void {
+        const ratio = pixelRatio();
+        canvas.width = Math.round(cssWidth * ratio);
+        canvas.height = Math.round(cssHeight * ratio);
+        canvas.style.width = `${cssWidth}px`;
+        canvas.style.height = `${cssHeight}px`;
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
     let columns = Math.floor(window.innerWidth / fontSize);
     let drops: number[] = [];
     let lockedHeight = getInitialViewportHeight();
@@ -39,8 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const oldColumns = columns;
             lockedWidth = newWidth;
             lockedHeight = newHeight;
-            canvas.width = lockedWidth;
-            canvas.height = lockedHeight;
+            applyCanvasSize(lockedWidth, lockedHeight);
             columns = newColumns;
 
             if (newColumns !== oldColumns) {
@@ -53,8 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    canvas.width = lockedWidth;
-    canvas.height = lockedHeight;
+    applyCanvasSize(lockedWidth, lockedHeight);
 
     for (let x = 0; x < columns; x++) {
         drops[x] = Math.random() * -100;
@@ -88,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         lastTime = currentTime;
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, lockedWidth, lockedHeight);
 
         ctx.font = 'bold ' + fontSize + 'px monospace';
 
@@ -97,11 +113,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const x = i * fontSize;
             const y = drops[i] * fontSize;
 
-            const opacity = Math.max(0.3, 1 - (y / canvas.height) * 0.4);
+            const opacity = Math.max(0.3, 1 - (y / lockedHeight) * 0.4);
             ctx.fillStyle = `rgba(0, 255, 100, ${opacity})`;
             ctx.fillText(text, x, y);
 
-            if (y > canvas.height && Math.random() > 0.975) {
+            if (y > lockedHeight && Math.random() > 0.975) {
                 drops[i] = 0;
             }
             drops[i]++;

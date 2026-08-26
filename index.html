@@ -26,6 +26,7 @@
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       overflow-x: hidden;
       color: var(--white);
       background: var(--ink);
@@ -48,6 +49,7 @@
       inset: 0;
       width: 100%;
       height: 100vh;
+      height: 100dvh;
       opacity: 0.35;
       pointer-events: none;
     }
@@ -98,6 +100,12 @@
       border-bottom: 1px solid var(--line);
     }
 
+    /* Grid items default to min-width: auto, so an unbreakable child (the path)
+       widens the track and drags every sibling past the viewport. */
+    .hero > *,
+    .hero-meta > *,
+    .principle > * { min-width: 0; }
+
     .eyebrow {
       margin: 0 0 26px;
       color: var(--green);
@@ -119,6 +127,7 @@
     .path {
       display: block;
       width: fit-content;
+      max-width: 100%;
       padding-right: 0.08em;
       background: var(--plasma);
       background-size: 220% 220%;
@@ -295,7 +304,7 @@
       .topbar { min-height: 58px; }
       .topbar > span:last-of-type { display: none; }
       .hero { min-height: auto; padding: 14vh 0 10vh; }
-      .hero h1 { font-size: clamp(3.2rem, 15vw, 6rem); line-height: 0.9; }
+      .hero h1 { font-size: clamp(2.05rem, 11.5vw, 6rem); line-height: 0.95; }
       .hero-line { margin-left: 0; margin-top: 0.34em; font-size: 0.34em; line-height: 1.15; }
       .hero-meta { grid-template-columns: 1fr; margin-left: 0; }
       .scroll-note { display: none; }
@@ -305,6 +314,9 @@
       .principle:hover { padding-left: 8px; }
       .principle p { grid-column: 2; }
       footer { grid-template-columns: 1fr; }
+      #matrix-canvas { opacity: 0.18; }
+      .intro { font-size: 0.95rem; line-height: 1.7; }
+      .hero { padding: 9vh 0 8vh; }
     }
 
     @media (prefers-reduced-motion: reduce) {
